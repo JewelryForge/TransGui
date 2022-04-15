@@ -1,0 +1,5 @@
+pyyaml~=6.0
+pyqt5~=5.15.6
+requests~=2.26.0
+httpcore~=0.9.1
+googletrans~=3.1.0a0

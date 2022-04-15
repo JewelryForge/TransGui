@@ -1,0 +1,34 @@
+# default config
+# automatically copied to $HOME/.config/trans_gui/
+api:
+  server: google
+
+font_config:
+  font_family: Source Han Sans CN
+  font_size: 13
+  ui_font_family: Noto Sans CJK SC
+  ui_font_size: 10
+
+style_sheet:
+  fontsize_spinbox: 'padding: -1px 0px 0px 0px;'
+  texted_input:
+    - "background-color: #FFFFFF;"
+    - "border-top-left-radius: 15px;"
+    - "border-bottom-left-radius: 15px;"
+    - "border: 1px solid #E0E0E0;"
+    - "padding: 3px 10px 10px 10px;"
+  texted_output:
+    - "background-color: #F5F5F5;"
+    - "border-top-right-radius: 15px;"
+    - "border-bottom-right-radius: 15px;"
+    - "border-top: 1px solid #E0E0E0;"
+    - "border-bottom: 1px solid #E0E0E0;"
+    - "border-right: 1px solid #E0E0E0;"
+    - "padding: 5px 10px 10px 15px;"
+
+palette:
+  background: 0xffffff
+  highlight: 0xcce5ff
+  highlighted_text: 0x000000
+  tooltip_base: 0xffffff
+  tooltip_text: 0x666666
