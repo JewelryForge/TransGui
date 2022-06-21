@@ -26,7 +26,16 @@ class Translator:
                     status = f"youdao API: unauthorized user"
             elif self.api == 'google':
                 data = self.trans.translate(string, src='en', dest='zh-cn')
-                translation = data.text if data.src != data.dest else '翻译过于频繁，请等待片刻后重新尝试！'
+                info = data.extra_data['all-translations']
+                if data.src == data.dest:
+                    translation = '翻译过于频繁，请等待片刻后重新尝试！'
+                elif info is None:
+                    translation = data.text
+                else:
+                    info_text = '；'.join(
+                        f"\n{pos}：{'，'.join(alts)}" for pos, alts, *_ in info
+                    )  # e.g. intermediate 形容词：中间，中级；
+                    translation = data.text + info_text + '。'
             elif self.api == 'baidu':
                 data = self.trans.translate(string, src='en', dest='zh')
                 if 'error_msg' in data:

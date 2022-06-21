@@ -99,16 +99,15 @@ class TransConfig:
             self.config = yaml.safe_load(f.read())
 
         self.api = self.config['api']['server']
-        font_config = self.config['font_config']
+        self._font_cfg = self.config['font_config']
 
-        self.font_family = font_config['font_family']
-        self.font_size = font_config['font_size']
-        self.font = QFont()
-        self.font.setFamily(self.font_family)
-        self.font.setPointSize(self.font_size)
+        self._font_family = self._font_cfg['font_family']
+        self._font = QFont()
+        self._font.setFamily(self._font_family)
+        self._font.setPointSize(self.font_size)
 
-        self.ui_font_family = font_config['ui_font_family']
-        self.ui_font_size = font_config['ui_font_size']
+        self.ui_font_family = self._font_cfg['ui_font_family']
+        self.ui_font_size = self._font_cfg['ui_font_size']
         self.ui_font = QFont()
         self.ui_font.setFamily(self.ui_font_family)
         self.ui_font.setPointSize(self.ui_font_size)
@@ -118,16 +117,44 @@ class TransConfig:
         self.ui_pal.setColor(QPalette.Window, QColor(palette_config['background']))
 
         self.texted_pal = QPalette()
-        self.texted_pal.setColor(QPalette.Highlight, QColor(palette_config['highlight']))
-        self.texted_pal.setColor(QPalette.HighlightedText, QColor(palette_config['highlighted_text']))
+        self.texted_pal.setColor(
+            QPalette.Highlight,
+            QColor(palette_config['highlight'])
+        )
+        self.texted_pal.setColor(
+            QPalette.HighlightedText,
+            QColor(palette_config['highlighted_text'])
+        )
 
         self.tooltip_pal = QPalette()
-        self.tooltip_pal.setColor(QPalette.Inactive, QPalette.ToolTipBase, QColor(palette_config['tooltip_base']))
-        self.tooltip_pal.setColor(QPalette.Inactive, QPalette.ToolTipText, QColor(palette_config['tooltip_text']))
+        self.tooltip_pal.setColor(
+            QPalette.Inactive,
+            QPalette.ToolTipBase,
+            QColor(palette_config['tooltip_base'])
+        )
+        self.tooltip_pal.setColor(
+            QPalette.Inactive,
+            QPalette.ToolTipText,
+            QColor(palette_config['tooltip_text'])
+        )
 
         style_sheet_config = self.config['style_sheet']
         self.texted_input_style_sheet = ''.join(style_sheet_config['texted_input'])
         self.texted_output_style_sheet = ''.join(style_sheet_config['texted_output'])
+
+    @property
+    def font_size(self):
+        return self._font_cfg['font_size']
+
+    @font_size.setter
+    def font_size(self, value):
+        self._font_cfg['font_size'] = value
+        self._font.setPointSize(value)
+        self.dump()
+
+    @property
+    def font(self):
+        return self._font
 
     def dump(self):
         with open(self.USER_CONFIG_PATH, 'w', encoding="utf-8") as f:
@@ -224,17 +251,33 @@ class TransGui(QMainWindow):
 
         self.tool_bar = self.addToolBar('tools')
         self.tool_bar.setIconSize(QSize(25, 18))
-        self.grow_font_action = QAction(QIcon(get_icon_path('font+.png')), '增大字体', self)
-        self.grow_font_action.triggered.connect(lambda: self.change_fontsize(self.cfg.font.pointSize() + 1))
-        self.shrink_font_action = QAction(QIcon(get_icon_path('font-.png')), '缩小字体', self)
-        self.shrink_font_action.triggered.connect(lambda: self.change_fontsize(self.cfg.font.pointSize() - 1))
-        self.refresh_action = QAction(QIcon(get_icon_path('refresh.png')), '刷新', self)
+        self.grow_font_action = QAction(
+            QIcon(get_icon_path('font+.png')), '增大字体', self
+        )
+        self.grow_font_action.triggered.connect(
+            lambda: self.change_fontsize(self.cfg.font.pointSize() + 1)
+        )
+        self.shrink_font_action = QAction(
+            QIcon(get_icon_path('font-.png')), '缩小字体', self
+        )
+        self.shrink_font_action.triggered.connect(
+            lambda: self.change_fontsize(self.cfg.font.pointSize() - 1)
+        )
+        self.refresh_action = QAction(
+            QIcon(get_icon_path('refresh.png')), '刷新', self
+        )
         self.refresh_action.triggered.connect(self.refresh_input)
-        self.undo_action = QAction(QIcon(get_icon_path('undo.png')), '撤销(Ctrl+Z)', self)
+        self.undo_action = QAction(
+            QIcon(get_icon_path('undo.png')), '撤销(Ctrl+Z)', self
+        )
         self.undo_action.triggered.connect(self.undo)
-        self.copy_res_action = QAction(QIcon(get_icon_path('copy.png')), '复制翻译结果', self)
+        self.copy_res_action = QAction(
+            QIcon(get_icon_path('copy.png')), '复制翻译结果', self
+        )
         self.copy_res_action.triggered.connect(self.on_copy)
-        self.screenshot_btn = self.button(get_icon_path('shot.png'), 'Select Area', self.screenshot, 'Ctrl+S')
+        self.screenshot_btn = self.button(
+            get_icon_path('shot.png'), 'Select Area', self.screenshot, 'Ctrl+S'
+        )
         self.screenshot_btn.setVisible(False)
 
         self.tool_bar.addAction(self.grow_font_action)
@@ -368,7 +411,9 @@ class TransGui(QMainWindow):
         self.texted_output.cursorPositionChanged.connect(self.text_correspond)
 
     def refresh_input(self):
-        self.texted_input.setPlainText(''.join(s + '\n' for s in sentence_split(self.texted_input.toPlainText())))
+        self.texted_input.setPlainText(
+            '\n'.join(sentence_split(self.texted_input.toPlainText()))
+        )
         self.delay.refresh()
 
     def on_copy(self):
@@ -378,7 +423,7 @@ class TransGui(QMainWindow):
 
     def change_fontsize(self, font_size):
         font_size = min(max(1, font_size), 48)
-        self.cfg.font.setPointSize(font_size)
+        self.cfg.font_size = font_size
         self.font_size_changed = True
         self.menu_fontsize.setText(f'字号：{font_size}pt')
         self.texted_input.setFont(self.cfg.font)
